@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "specification_name": "ASC manuscript reproduction, confirmed settings",
+  "manuscript_revision": "20261010 figure-audit manuscript and supplementary document",
+  "scope": "Analyses start from processed mutation/CNV matrices and documented derived inputs. Upstream FASTQ, variant-calling, CNV inference, signature extraction, and copy-number clustering are not rerun here.",
+  "cohort": {
+    "paired_ASC": {"cases": 11, "sample_types": ["A", "T", "S"]},
+    "reference_comparison": {"LUAD": 89, "ASC_cases": 29, "LUSC": 82},
+    "classifier_reference": {"LUAD": 89, "LUSC": 82, "ASC_in_supervised_fit_or_selection": false},
+    "CNV_clusters": {"count": 114, "policy": "freeze the historical gene-to-cluster mapping"}
+  },
+  "frequency_filters": {
+    "reference_SNV_comparisons": {"operator": ">=", "threshold": 0.05},
+    "CGC_Tier1_oncoplot_Figure4A": {"operator": ">", "threshold": 0.05, "expected_feature_count": 24},
+    "classifier_SNV_TOP_and_RFE_candidates": {"operator": ">=", "threshold": 0.05, "selection_scope": "training fold only"},
+    "paired_component_mutation_PCA_S6C": {"operator": ">=", "threshold": 0.1, "expected_feature_count": 90},
+    "expanded_subtype_oncoplot_S11": {"operator": ">=", "threshold": 0.1, "expected_feature_count": 39}
+  },
+  "descriptive_PCA": {
+    "panels": ["Figure 5A", "Figure 5B", "S6C", "S6D"],
+    "SNV_preprocessing": "binary; frequency computed within each displayed cohort",
+    "CNV_preprocessing": "raw arithmetic cluster-mean log2 ratio; no variance scaling",
+    "centering": true,
+    "components": 2,
+    "solver": "full; matches legacy auto effective solver for all four current matrix sizes",
+    "expected_SNV_features": {"Figure5A": 441, "S6C": 90},
+    "expected_CNV_clusters": 114,
+    "expected_samples": {"subtype_T": 200, "paired_ATS": 33}
+  },
+  "paired_CNV": {
+    "input_units": "CNV log2 ratio",
+    "3q_gain": {"operator": ">=", "threshold": 0.1, "denominator_per_component": 11, "expected_gain_counts_A_T_S": [2, 4, 8]},
+    "paired_3q_test": {"test": "two-sided Wilcoxon signed-rank", "contrast": "S versus A", "expected_raw_p": 0.001953125},
+    "exploratory_feature_test": {"test": "Friedman test across A/T/S within each patient", "correction": "Benjamini-Hochberg within each feature-resolution family", "significance_rule": "BH-adjusted p < 0.1", "expected_significant_arms": ["3q"], "expected_significant_clusters": ["8", "47", "63", "93", "106"]},
+    "S9_x_axis": {"status": "confirmed", "final_definition": "mean across cases of (abs(A-T) + abs(T-S) + abs(S-A)) / 3"}
+  },
+  "subtype_CNV": {
+    "overall_test": "Kruskal-Wallis",
+    "pairwise_test": "two-sided Mann-Whitney U",
+    "correction": "Benjamini-Hochberg separately across features for the overall test and for each pairwise comparison",
+    "significance_rule": "BH-adjusted p < 0.1",
+    "expected_significant_feature_counts": {"arms": 31, "clusters": 78},
+    "shared_significant_arms": 29
+  },
+  "similarity": {
+    "SNV_features": {"frequency_operator": ">=", "frequency_threshold": 0.05, "binary": true},
+    "Jaccard_output_range": [0, 1],
+    "SMC_output_range": [0, 1],
+    "CNV_similarity": "cosine similarity; retain signed theoretical range unless a figure-specific definition specifies otherwise",
+    "S7_within_between_inference": {"status": "pending audit of independent unit and dependence-aware test"},
+    "shared_private_variant_definition": {"shared": "present in matched A, T and S", "A-only": "present in A but not matched S; T not excluded", "S-only": "present in S but not matched A; T not excluded"}
+  },
+  "pooled_CCA_S18A_tables3_4": {
+    "status": "confirmed; independently reproduced in standalone Step 07a",
+    "sample_scope": {"T_samples": 200, "LUAD": 89, "ASC": 29, "LUSC": 82},
+    "SNV": {"input": "binary gene mutation matrix", "frequency_operator": ">=", "frequency_threshold": 0.05, "features": 441, "variance_scaling": false},
+    "CNV": {"input": "114-cluster log2 ratio matrix", "standardization": "StandardScaler fitted across the 200 pooled T samples before PCA"},
+    "PCA": {"components_per_modality": 20, "solver": "full"},
+    "CCA": {"components": 1, "scale": false, "expected_first_canonical_correlation": 0.7586780177215268},
+    "coefficient_units": "SNV binary-feature back-projection and standardized CNV-cluster-feature coefficients",
+    "verification": "top 10 rows and rankings in latest manuscript Tables 3 and 4 matched at 3 decimals"
+  },
+  "reference_only_CCA_S18B_C": {
+    "status": "retained reference fit, displayed in merged S18B",
+    "current_rule": "LUAD/LUSC-only PCA/CCA fit; all 13977 mutation features; CNV is not variance-standardized before PCA; CCA scale=true",
+    "ASC_role": "project after fitting the reference-only transformations"
+  },
+  "classifier": {
+    "design": "retrospective stratified 80/20 internal holdout of 171 LUAD/LUSC reference patients",
+    "split": {"seed": 42, "development_n": 136, "development_class_counts_LUAD_LUSC": [71, 65], "holdout_n": 35, "holdout_class_counts_LUAD_LUSC": [18, 17], "reproducible_order": "sort reference patient/sample IDs before the stratified split", "patient_level_split": true},
+    "development_evaluation": {"outer_cv": "StratifiedKFold, 5 folds, shuffle=true", "seeds": "0 through 99", "metrics": ["AUROC", "macro-F1", "accuracy"]},
+    "feature_selection": {"TOP": "training-fold mutation frequency >= 5%", "RFE": "RFECV is refit inside each training fold", "RFECV_cv": "StratifiedKFold, 5 folds, shuffle=false", "RFECV_scoring": "accuracy", "RFECV_step": 10, "RFECV_min_features": 10},
+    "base_model": {"estimator": "RandomForestClassifier", "trees": 100, "outer_model_seed": "outer seed; final estimator seed 42"},
+    "stacking": {"meta_estimator": "LogisticRegression, max_iter=1000", "internal_oof_folds": 5, "internal_oof_shuffle": false, "feature_selection_within_each_internal_training_split": true},
+    "model_selection_order": ["mean AUROC", "mean macro-F1", "mean accuracy"],
+    "exact_tie_rule": "lexicographic model name",
+    "selected_model_from_existing_run": "SNV_RFE-CNV_RFE",
+    "final_development_fit_feature_counts": {"SNV_RFE": 45, "CNV_RFE": 10},
+    "holdout_result_from_existing_run": {"accuracy": 0.9714285714285714, "macro_F1": 0.9713349713349714, "AUROC": 0.9967320261437909, "correct_of_35": 34},
+    "final_model_fit_scope": "development 136 only; holdout is not added back; ASC is scored after model selection",
+    "ASC_scored_samples_in_existing_run": 51,
+    "limitations": ["retrospective internal holdout, not an external validation cohort", "the frozen 114-cluster representation was derived from the full 171-patient reference set and therefore includes holdout-derived information"]
+  },
+  "S20_importance": "standalone model importance averaged across five folds per seed; unselected features contribute zero; top 20 features ranked by mean importance; not final-stacking coefficients",
+  "not_resolved_by_this_specification": [
+    "dependence-aware inference for repeated pairwise and CV comparisons"
+  ]
+}

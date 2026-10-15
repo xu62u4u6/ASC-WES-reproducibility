@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "description": "Processed inputs used to reconstruct the study cohort and known manuscript analyses. Paths are relative to an external data root and no patient-level values are stored here.",
+  "required": [
+    {"path": "data/Census All Months Jan 27 2025.csv", "format": "CSV", "role": "gene annotation / COSMIC census lookup", "required_columns": ["Gene Symbol"], "nonempty_columns": ["Gene Symbol"], "source_status": "source URL and download checksum provenance to be documented"},
+    {"path": "data/all_case_metadata_0527.csv", "format": "CSV", "role": "LUAD/LUSC and reference sample metadata; Subtype B is excluded by the cohort loader", "required_columns": ["case_ID", "subtype", "LUSC_subtype", "AS_sample"], "nonempty_columns": ["case_ID", "subtype"], "unique_key": "case_ID", "source_status": "locally curated metadata; upstream provenance to be documented; AS_sample is intentionally blank for non-ASC records"},
+    {"path": "data/ASC_all_case_metadata_0312.csv", "format": "CSV", "role": "ASC case-level clinical metadata", "required_columns": ["case_ID", "AS_sample"], "nonempty_columns": ["case_ID", "AS_sample"], "unique_key": "case_ID", "source_status": "locally curated metadata; upstream provenance to be documented"},
+    {"path": "data/CNV_0407/thresholded_cnv.db", "format": "SQLite / pymaftools pivot tables", "role": "thresholded chromosome-arm CNV matrix and sample metadata", "table": "data", "matrix_feature_key": "feature", "feature_metadata_table": "feature_metadata", "sample_metadata_table": "sample_metadata", "units": "integer thresholded CNV state; exact state encoding to be documented from generating pipeline"},
+    {"path": "data/CNV_0407/gene_cnv.db", "format": "SQLite / pymaftools pivot tables", "role": "gene-level CNV log2 ratio matrix", "table": "data", "matrix_feature_key": "feature", "feature_metadata_table": "feature_metadata", "sample_metadata_table": "sample_metadata", "units": "log2 ratio; preprocessing provenance to be documented"},
+    {"path": "data/CNV_0407/arm_cnv.db", "format": "SQLite / pymaftools pivot tables", "role": "chromosome-arm CNV log2 ratio matrix", "table": "data", "matrix_feature_key": "feature", "feature_metadata_table": "feature_metadata", "sample_metadata_table": "sample_metadata", "units": "log2 ratio; preprocessing provenance to be documented"},
+    {"path": "data/WES/all_case_table.db", "format": "SQLite / pymaftools pivot tables", "role": "small-variant presence matrix, annotation, and sample metadata", "table": "data", "matrix_feature_key": "feature", "feature_metadata_table": "feature_metadata", "sample_metadata_table": "sample_metadata", "units": "binary mutation presence after analysis-specific filtering; exact filtering is specified per analysis"},
+    {"path": "data/signature/signature_table.db", "format": "SQLite / pymaftools pivot tables", "role": "precomputed mutational-signature exposure matrix", "table": "data", "matrix_feature_key": "feature", "feature_metadata_table": "feature_metadata", "sample_metadata_table": "sample_metadata", "units": "signature exposure; generating tool/version and normalization to be documented"},
+    {"path": "data/clustering/best_k_cluster_labels.csv", "format": "CSV", "role": "frozen gene-to-CNV-cluster assignment used in analyses", "required_columns": ["feature", "cluster"], "nonempty_columns": ["feature", "cluster"], "unique_key": "feature", "category_column": "cluster", "expected_category_count": 114, "source_status": "historical clustering input retained; not re-derived in this project"}
+  ],
+  "known_panel_dependent": [
+    {"path": "data/WES/all_case_maf_AST.csv", "format": "tab-delimited MAF-like table despite .csv suffix", "role": "component-level mutation / clonality analyses", "required_columns": ["Hugo_Symbol", "Tumor_Sample_Barcode"], "include_when": "panel map confirms use"},
+    {"path": "data/WES/LUAD.maf, data/WES/ASC.maf, data/WES/LUSC.maf", "format": "MAF", "role": "subtype-level mutation profile analysis", "include_when": "panel map confirms use; document filters and relation to all_case_table.db"},
+    {"path": "data/pyclone_output/*.pyclone.tsv", "format": "PyClone tab-separated outputs", "role": "precomputed component-level clonal prevalence", "include_when": "panel map confirms use; document PyClone provenance"},
+    {"path": "data/ddr/ddr_genes.csv", "format": "CSV with a multi-line source title before the header", "role": "DNA damage repair gene annotation", "include_when": "panel map confirms use"},
+    {"path": "data/protein_domains.csv", "format": "CSV", "role": "protein domain annotation for mutation lollipop panels", "include_when": "panel map confirms use; document source/version"},
+    {"path": "data/medicc2_output/", "format": "MEDICC2-derived files", "role": "patient-level copy-number tree and event summaries", "include_when": "panel map confirms use; document tool/version and required subset"},
+    {"path": "data/ASC_cohort.db", "format": "SQLite snapshot", "role": "used by an exploratory 3q-clinical analysis script; cohort loader treats constituent databases as source of truth", "include_when": "panel map confirms the exploratory analysis contributes to a submission panel"},
+    {"path": "data/clustering/metric_df.csv", "format": "CSV", "role": "cluster-count selection diagnostics", "include_when": "panel map confirms cluster-selection diagnostics are included"}
+  ],
+  "validation_policy": {
+    "check_hashes": true,
+    "persist_sample_identifiers": false,
+    "persist_matrix_values": false,
+    "inventory_destination": "local/input_inventory.json",
+    "inventory_is_ignored_by_git": true
+  }
+}

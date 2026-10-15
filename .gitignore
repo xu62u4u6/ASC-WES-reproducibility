@@ -1,0 +1,35 @@
+# Local research inputs and generated outputs are not release source.
+/data/
+/inputs/
+/outputs/
+/artifacts/
+/local/
+/private/
+/runs/
+.venv/
+*.egg-info/
+/figures/panels/
+/figures/assembled/
+/figures/archive/
+/figures/inventory.json
+/figures/INDEX.md
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.env
+.env.*
+*.db
+*.sqlite*
+*.npz
+*.npy
+*.pkl
+*.pickle
+*.joblib
+*.docx
+*.tif
+*.tiff
+# Review text tables and notebooks before deliberately tracking them.
+*.csv
+*.tsv
+*.ipynb

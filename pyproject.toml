@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools==82.0.1", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "asc-submission-reproduction"
+version = "0.1.0"
+description = "Reproduction code for the ASC WES manuscript, starting from processed inputs."
+readme = "README.md"
+requires-python = "==3.12.*"
+dependencies = [
+    "joblib==1.5.3",
+    "matplotlib==3.10.9",
+    "matplotlib-venn==1.1.2",
+    "networkx==3.6.1",
+    "numpy==2.2.6",
+    "pandas==2.3.3",
+    "Pillow==12.2.0",
+    "pymaftools==0.5.0",
+    "scikit-learn==1.6.1",
+    "scipy==1.15.3",
+    "seaborn==0.13.2",
+    "statannotations==0.7.2",
+    "statsmodels==0.14.6",
+]
+
+[project.optional-dependencies]
+analysis = ["lifelines==0.30.3"]
+dev = ["pytest==9.0.3"]
+
+[project.scripts]
+asc-repro-figures = "asc_reproduction.figure_routes:main"
+asc-repro-prepare = "asc_reproduction.cohort_inputs:main"
+asc-repro-model = "asc_reproduction.model_runner:main"
+asc-repro-model-workflow = "asc_reproduction.model_workflow:main"
+asc-repro-figure3-composite = "asc_reproduction.figure3_composite:main"
+asc-repro-clustering-metrics = "asc_reproduction.clustering_metrics:main"
+asc-repro-protein-lollipops = "asc_reproduction.protein_lollipops:main"
+asc-repro-paired-3q = "asc_reproduction.paired_cnv:main"
+asc-repro-paired-screen = "asc_reproduction.paired_screen:main"
+asc-repro-subtype-cnv = "asc_reproduction.subtype_cnv:main"
+asc-repro-c47-profile = "asc_reproduction.c47_profile:main"
+asc-repro-paired-c47-difference = "asc_reproduction.paired_c47_difference:main"
+asc-repro-subtype-c47-profile = "asc_reproduction.subtype_c47_profile:main"
+asc-repro-subtype-metrics = "asc_reproduction.subtype_metrics:main"
+asc-repro-cgc-oncoplot = "asc_reproduction.cgc_oncoplot:main"
+asc-repro-cluster-panels = "asc_reproduction.cluster_panels:main"
+asc-repro-cnv-heatmaps = "asc_reproduction.cnv_heatmaps:main"
+asc-repro-pca-panels = "asc_reproduction.pca_panels:main"
+asc-repro-pooled-cca = "asc_reproduction.pooled_cca:main"
+asc-repro-run = "asc_reproduction.runner:main"
+asc-repro-similarity-panels = "asc_reproduction.similarity_panels:main"
+asc-repro-subtype-oncoplot = "asc_reproduction.subtype_oncoplot:main"
+asc-repro-smoking-oncoplot = "asc_reproduction.smoking_oncoplot:main"
+asc-repro-component-metrics = "asc_reproduction.component_metrics:main"
+asc-repro-subtype-signatures = "asc_reproduction.subtype_signatures:main"
+asc-repro-paired-oncoplot = "asc_reproduction.paired_oncoplot:main"
+asc-repro-ccf-panels = "asc_reproduction.ccf_panels:main"
+asc-repro-driver-oncoplot = "asc_reproduction.driver_oncoplot:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
